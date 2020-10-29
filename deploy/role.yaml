@@ -1,0 +1,15 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hibernation-curator
+rules:
+- apiGroups: ["hive.openshift.io"] # "" indicates the core API group
+  resources: ["clusterdeployments"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: ["cluster.open-cluster-management.io"] # "" indicates the core API group
+  resources: ["managedclusters"]
+  verbs: ["get"]
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["namespaces"]
+  verbs: ["list"]
