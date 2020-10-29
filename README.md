@@ -1,4 +1,4 @@
-# Pause your Hive provisioned clusters
+# Hibernate your Hive provisioned clusters
 This repository has the source code as well as the deployment for two Kubernetes CronJobs that will Hibernate and Resume your OpenShift clusters.
 
 ## Requirements
