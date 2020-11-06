@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: hibernation-job
+  generateName: hibernation-job-
 spec:
   template:
     spec:

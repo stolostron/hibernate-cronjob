@@ -32,10 +32,21 @@ It uses the standard CronJob format and the check is done against a UTC clock.  
 The job will only target clusters deployed by Hive. It looks for the ClusterDeployment and ManagedCluster objects.  If you put a label on either of these objects `hibernation: skip` they will be ignored by both CronJobs.
 
 ## Runonce job
+### To bring clusters back to "Ready"
 ```
-oc apply -f deploy/hibernation-job.yaml
-# OR
-oc apply -f deploy/running-job.yaml
+make running
+
+## OR
+
+oc create -f deploy/hibernation-job.yaml
+```
+### To hibernate clusters
+```
+make hibernate
+
+## OR
+
+oc create -f deploy/running-job.yaml
 ```
 
 ## Manual updates
