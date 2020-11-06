@@ -38,7 +38,7 @@ def fire_event(clusterName, namespaceName, eventName, message, reason, eType, ap
 if 'TAKE_ACTION' not in os.environ:
     raise EnvironmentError("Environment variable TAKE_ACTION missing")
 
-TAKE_ACTION = os.environ['TAKE_ACTION']
+TAKE_ACTION = os.getenv('TAKE_ACTION')
 if TAKE_ACTION != 'Hibernating' and TAKE_ACTION != 'Running':
     raise SyntaxError("TAKE_ACTION must be set to \"Hibernating\" or \"Running\", found: " + TAKE_ACTION)
 
@@ -46,16 +46,19 @@ configuration = kubernetes.client.Configuration()
 configuration.verify_ssl = False
 
 # Read API key Bearer Token
-CM_TOKEN = os.environ['CM_TOKEN']
-if CM_TOKEN == "":
+CM_TOKEN = os.getenv('CM_TOKEN')
+if 'CM_TOKEN' not in os.environ:
     print("Read token for Service Account from a secret")
     CM_TOKEN = open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r').read()
+else:
+    os.getenv('CM_TOKEN')
 configuration.api_key = {"authorization": "Bearer " + CM_TOKEN}
 
 # Read the API URL
-CM_API_URL = os.environ['CM_API_URL']
-if CM_API_URL == "":
+if 'CM_API_URL' not in os.environ:
     CM_API_URL = "https://kubernetes.default.svc.cluster.local"
+else:
+    CM_API_URL = os.getenv('CM_API_URL')
 configuration.host = CM_API_URL
 
 with kubernetes.client.ApiClient(configuration) as api_client:

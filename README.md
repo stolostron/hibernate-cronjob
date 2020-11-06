@@ -58,3 +58,11 @@ You'll need docker and a connection to a registry that your OpenShift can reach.
 deploy/hibernating-cronjob.yaml
 deploy/running-cronjob.yaml
 ```
+
+## Running local
+Setup the following environment variables, then run `python src/action.py`
+```bash
+export TARGET_ACTION=hibernating  # Or "running"
+export CM_TOKEN=                  # Your OpenShift API token
+export CM_API_URL                 # API URL for your cluster https://my.cluster.hostname.com:6443
+```

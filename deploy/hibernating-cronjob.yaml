@@ -10,7 +10,7 @@ spec:
   #          │ │  ┌───────────── day of the month (1 - 31)
   #          │ │  │ ┌───────────── month (1 - 12)
   #          │ │  │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
-  schedule: "0 23 * * 1-5"
+  schedule: "0 00 * * 2-6"
   jobTemplate:
     spec:
       template:
