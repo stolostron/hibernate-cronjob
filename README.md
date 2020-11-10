@@ -21,7 +21,7 @@ oc get cronjobs
 ```
 
 ## Time window
-The default settings is to have the clusters runnings from 7am - 7pm Mon - Fri.  You can adjust the times by modifying the two CronJobs:
+The default settings is to have the clusters runnings from 8am - 6pm Mon - Fri EST.  You can adjust the times by modifying the two CronJobs:
 ```
 deploy/hibernating-cronjob.yaml
 deploy/running-cronjob.yaml
@@ -66,3 +66,10 @@ export TARGET_ACTION=hibernating  # Or "running"
 export CM_TOKEN=                  # Your OpenShift API token
 export CM_API_URL                 # API URL for your cluster https://my.cluster.hostname.com:6443
 ```
+
+## Time chart
+| Time Zone | UTC offset | Example |
+| :-------: | :--------: | :-----: |
+| EST       | +5hr       | 11:22EST = 16:22UTC |
+| EDT       | +4hr       | 11:22EDT = 15:22UTC |
+| PST       | +8hr       | 11:22PST = 19:22UTC |

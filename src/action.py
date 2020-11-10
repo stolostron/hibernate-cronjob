@@ -114,7 +114,7 @@ with kubernetes.client.ApiClient(configuration) as api_client:
                     fire_event(clusterName, namespaceName, "failedhibernating", "The cluster " + clusterName + " did not set powerState to Hibernating", "failedHibernating", "Warning", api_core)
                 else:
                     print('  ✓')
-                    fire_event(clusterName, namespaceName, "hibernating", "The cluster " + clusterName + " has powerState Hibernating", "Hibernating", "Normal", api_core)
+                    fire_event(clusterName, namespaceName, "hibernating", "The cluster " + clusterName + " has powerState " + TAKE_ACTION, TAKE_ACTION, "Normal", api_core)
 
 
 
