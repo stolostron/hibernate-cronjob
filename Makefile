@@ -1,11 +1,9 @@
-REPO_URL := quay.io/jpacker
-
+NAMESPACE := open-cluster-management
 all:
 	@echo "Commands:"
 	@echo ""
 	@echo "make build     # Build image ONLY"
 	@echo "make push      # Build and push the image used by manual and cronjobs"
-	@echo "make lint      # Validate the source code"
 	@echo "make running   # Manually launch Running"
 	@echo "make hibernate # Manually launch Hibernating"
 	@echo "make setup     # Deploys the cronjobs"
@@ -20,10 +18,10 @@ clean:
 	docker image rm ${REPO_URL}/hibernation-curator:latest
 
 running:
-	oc create -f deploy/running-job.yaml
+	oc -n ${NAMESPACE} create -f deploy/running-job.yaml
 
 hibernate:
-	oc create -f deploy/hibernation-job.yaml
+	oc -n ${NAMESPACE} create -f deploy/hibernation-job.yaml
 
 setup:
-	oc apply -k deploy/
+	oc -n ${NAMESPACE} apply -k deploy/
