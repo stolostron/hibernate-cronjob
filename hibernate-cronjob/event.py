@@ -1,4 +1,4 @@
-#author: jpacker@redhat.com
+#author: github.com/jnpacker
 import kubernetes.client
 from datetime import datetime
 

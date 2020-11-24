@@ -2,18 +2,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: hibernation-job-
+  generateName: hibernating-job-
 spec:
   template:
     spec:
       serviceAccountName: hibernator
       containers:
       - name: worker
-        image: quay.io/jpacker/hibernation-curator:latest
-        command: ['python','action.py']
+        image: quay.io/jpacker/hibernation-curator-go:latest
+        command: ['./action']
         env:
         - name: TAKE_ACTION
           value: Hibernating
-        - name: PYTHONWARNINGS
-          value: "ignore:Unverified HTTPS request"  
       restartPolicy: OnFailure
