@@ -9,7 +9,6 @@ require (
 	github.com/openshift/hive v1.0.14
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v12.0.0+incompatible
-	sigs.k8s.io/controller-runtime v0.6.2 // indirect
 )
 
 replace (
