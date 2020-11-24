@@ -29,7 +29,7 @@ deploy/running-cronjob.yaml
 It uses the standard CronJob format and the check is done against a UTC clock.  For EDT, that means +4hrs.
 
 ## Skipping Clusters
-The job will only target clusters deployed by Hive. It looks for the ClusterDeployment and ManagedCluster objects.  If you put a label on either of these objects `hibernation: skip` they will be ignored by both CronJobs.
+The job will only target clusters deployed by Hive. It looks for the ClusterDeployment and ManagedCluster objects.  If you put a label on either of these objects `hibernate: skip` they will be ignored by both CronJobs.
 
 ## Runonce job
 ### To bring clusters back to "Ready"
@@ -60,7 +60,7 @@ deploy/running-cronjob.yaml
 ```
 
 ## Running local
-Setup the following environment variables, then run `python src/action.py`
+Setup the following environment variables, then run `python hibernate-cronjob/action.py`
 ```bash
 export TARGET_ACTION=hibernating  # Or "running"
 export CM_TOKEN=                  # Your OpenShift API token

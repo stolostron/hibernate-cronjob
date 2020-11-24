@@ -1,38 +1,8 @@
-#author: jpacker@redhat.com
+#author: github.com/jnpacker
+
 import kubernetes.client
 import os
-from datetime import datetime
-from pprint import pprint
-from kubernetes.client.rest import ApiException
-
-# fire_event will create or update an existing event
-def fire_event(clusterName, namespaceName, eventName, message, reason, eType, api_core):
-    objRef = kubernetes.client.V1ObjectReference(kind='ClusterDeployment', name=clusterName, namespace=namespaceName)
-    metaRef = kubernetes.client.V1ObjectMeta(name=eventName, namespace=namespaceName)
-
-    body = kubernetes.client.V1Event(involved_object=objRef, metadata=metaRef)
-    body.message = message
-    body.reason = reason
-    body.type = eType
-    body.last_timestamp = datetime.utcnow().isoformat() + "Z"
-
-    existingEvent = None
-    try:  # Replace with the list_namespaced_events in the future
-        existingEvent = api_core.read_namespaced_event(eventName, namespaceName)
-    except:
-        print("  \-> Event not found")
-
-    if existingEvent:
-        if not existingEvent.count:
-            body.count = 1
-        else:
-            body.count = existingEvent.count + 1
-        api_core.patch_namespaced_event(eventName, namespaceName, body)
-        print("  \-> Update existing event " + eventName + " count " + str(body.count))
-    else:
-        body.count = 0
-        api_core.create_namespaced_event(namespaceName, body)
-        print("  \-> Create a new event " + eventName)
+import event
 
 # Main code path
 if 'TAKE_ACTION' not in os.environ:
@@ -85,7 +55,7 @@ with kubernetes.client.ApiClient(configuration) as api_client:
                     ('hibernate' in managedCluster['metadata']['labels'] and 'skip' == managedCluster['metadata']['labels']['hibernate']):
 
                 print("Skip     : " + clusterName)
-                fire_event(clusterName, namespaceName, "skiphibernating", "Skipping cluster " + clusterName + " labels.hibernate=skip. It will not be hibernating", "skipHibernating", "Normal", api_core)
+                event.fire(clusterName, namespaceName, "clusterdeployment", "skiphibernating", "Skipping cluster " + clusterName + " labels.hibernate=skip. It will not be hibernating", "skipHibernating", "Normal", api_core)
             else:
                 if clusterName != namespaceName:
                     print ("Skip     : Namespace: " + namespaceName + " does not match cluster name: " + clusterName + "")
@@ -111,10 +81,10 @@ with kubernetes.client.ApiClient(configuration) as api_client:
                 managedCluster = api_instance.get_namespaced_custom_object("hive.openshift.io", "v1", namespaceName, "clusterdeployments",clusterName)
                 if not 'powerState' in managedCluster['spec'] or managedCluster['spec']['powerState'] != TAKE_ACTION:
                     print('  X ')
-                    fire_event(clusterName, namespaceName, "failedhibernating", "The cluster " + clusterName + " did not set powerState to Hibernating", "failedHibernating", "Warning", api_core)
+                    event.fire(clusterName, namespaceName, "clusterdeployment", "failedhibernating", "The cluster " + clusterName + " did not set powerState to Hibernating", "failedHibernating", "Warning", api_core)
                 else:
                     print('  ✓')
-                    fire_event(clusterName, namespaceName, "hibernating", "The cluster " + clusterName + " has powerState " + TAKE_ACTION, TAKE_ACTION, "Normal", api_core)
+                    event.fire(clusterName, namespaceName, "clusterdeployment", "hibernating", "The cluster " + clusterName + " has powerState " + TAKE_ACTION, TAKE_ACTION, "Normal", api_core)
 
 
 
