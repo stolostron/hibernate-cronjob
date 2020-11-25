@@ -73,3 +73,6 @@ export CM_API_URL                 # API URL for your cluster https://my.cluster.
 | EST       | +5hr       | 11:22EST = 16:22UTC |
 | EDT       | +4hr       | 11:22EDT = 15:22UTC |
 | PST       | +8hr       | 11:22PST = 19:22UTC |
+
+## Notes
+* Added to the open-cluster-management community [2020-11-25](https://github.com/open-cluster-management/community/issues/6)
