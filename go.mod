@@ -4,13 +4,6 @@ module github.com/open-cluster-management/hibernate-cronjob
 
 go 1.15
 
-require (
-	github.com/openshift/api v3.9.1-0.20191112184635-86def77f6f90+incompatible // indirect
-	github.com/openshift/hive v1.0.14
-	k8s.io/apimachinery v0.19.2
-	k8s.io/client-go v12.0.0+incompatible
-)
-
 replace (
 	bitbucket.org/ww/goautoneg => github.com/munnerz/goautoneg v0.0.0-20120707110453-a547fc61f48d
 	github.com/metal3-io/baremetal-operator => github.com/metal3-io/baremetal-operator v0.0.0-20201010064625-48f105067ad6
@@ -43,4 +36,11 @@ replace (
 	sigs.k8s.io/cluster-api-provider-azure => sigs.k8s.io/cluster-api-provider-azure v0.4.9
 	sigs.k8s.io/cluster-api-provider-gcp => sigs.k8s.io/cluster-api-provider-gcp v0.2.0-alpha.2
 	sigs.k8s.io/cluster-api-provider-openstack => sigs.k8s.io/cluster-api-provider-openstack v0.3.3
+)
+
+require (
+	github.com/openshift/hive v1.0.14
+	k8s.io/api v0.19.2
+	k8s.io/apimachinery v0.19.2
+	k8s.io/client-go v12.0.0+incompatible
 )

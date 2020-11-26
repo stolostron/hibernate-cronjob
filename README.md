@@ -7,13 +7,9 @@ This repository has the source code as well as the deployment for two Kubernetes
 
 ## Deploy
 1. Log into your ACM Hub on OpenShift
-2. Choose a namespace or create a new one
+2. Run the command:
 ```
-oc new-project PROJECT_NAME
-```
-3. Run the command:
-```
-oc apply -k deploy/
+make setup-go
 ```
 4. Monitor the CornJobs
 ```
@@ -29,24 +25,24 @@ deploy/running-cronjob.yaml
 It uses the standard CronJob format and the check is done against a UTC clock.  For EDT, that means +4hrs.
 
 ## Skipping Clusters
-The job will only target clusters deployed by Hive. It looks for the ClusterDeployment and ManagedCluster objects.  If you put a label on either of these objects `hibernate: skip` they will be ignored by both CronJobs.
+The job will only target clusters deployed by Hive. It looks for the ClusterDeployment objects.  If you put a label on either of these objects `hibernate: skip` they will be ignored by both CronJobs.
 
 ## Runonce job
 ### To bring clusters back to "Ready"
 ```
-make running
+make running-go
 
 ## OR
 
-oc create -f deploy/hibernation-job.yaml
+oc create -f deploy-go/hibernation-job.yaml
 ```
 ### To hibernate clusters
 ```
-make hibernate
+make hibernate-go
 
 ## OR
 
-oc create -f deploy/running-job.yaml
+oc create -f deploy-go/running-job.yaml
 ```
 
 ## Manual updates
@@ -55,16 +51,23 @@ Edit the ClusterDeployment resource for the cluster you want to change the state
 ## Building yourself
 You'll need docker and a connection to a registry that your OpenShift can reach.  Modify the Makefile and replace the value of `REPO_URL` with your own registry URL. Next modify the two CronJobs to use your new image:
 ```
-deploy/hibernating-cronjob.yaml
-deploy/running-cronjob.yaml
+deploy-go/hibernating-cronjob.yaml
+deploy-go/running-cronjob.yaml
 ```
 
-## Running local
+## Running local (Python)
 Setup the following environment variables, then run `python hibernate-cronjob/action.py`
 ```bash
 export TARGET_ACTION=hibernating  # Or "running"
 export CM_TOKEN=                  # Your OpenShift API token
 export CM_API_URL                 # API URL for your cluster https://my.cluster.hostname.com:6443
+```
+
+## Running local (Python)
+Setup the following environment variables, then run `go run ./pkg`
+```bash
+export REPO_URL=             # The repository you will upload your image too
+export VERSION=              # The image version you want to use
 ```
 
 ## Time chart

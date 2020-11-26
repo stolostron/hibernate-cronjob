@@ -19,6 +19,7 @@ spec:
           containers:
           - name: worker
             image: quay.io/jpacker/hibernation-curator-go:latest
+            imagePullPolicy: IfNotPresent
             command: ['./action']
             env:
             - name: TAKE_ACTION

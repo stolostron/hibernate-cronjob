@@ -55,7 +55,7 @@ with kubernetes.client.ApiClient(configuration) as api_client:
                     ('hibernate' in managedCluster['metadata']['labels'] and 'skip' == managedCluster['metadata']['labels']['hibernate']):
 
                 print("Skip     : " + clusterName)
-                event.fire(clusterName, namespaceName, "clusterdeployment", "skiphibernating", "Skipping cluster " + clusterName + " labels.hibernate=skip. It will not be hibernating", "skipHibernating", "Normal", api_core)
+                event.fire(clusterName, namespaceName, "clusterdeployment", "hibernating", "Skipping cluster " + clusterName + " labels.hibernate=skip. It will not be hibernating", "skipHibernating", "Normal", api_core)
             else:
                 if clusterName != namespaceName:
                     print ("Skip     : Namespace: " + namespaceName + " does not match cluster name: " + clusterName + "")
@@ -81,7 +81,7 @@ with kubernetes.client.ApiClient(configuration) as api_client:
                 managedCluster = api_instance.get_namespaced_custom_object("hive.openshift.io", "v1", namespaceName, "clusterdeployments",clusterName)
                 if not 'powerState' in managedCluster['spec'] or managedCluster['spec']['powerState'] != TAKE_ACTION:
                     print('  X ')
-                    event.fire(clusterName, namespaceName, "clusterdeployment", "failedhibernating", "The cluster " + clusterName + " did not set powerState to Hibernating", "failedHibernating", "Warning", api_core)
+                    event.fire(clusterName, namespaceName, "clusterdeployment", "failedhibernating", "The cluster " + clusterName + " did not set powerState to " + TAKE_ACTION, "failedHibernating", "Warning", api_core)
                 else:
                     print('  ✓')
                     event.fire(clusterName, namespaceName, "clusterdeployment", "hibernating", "The cluster " + clusterName + " has powerState " + TAKE_ACTION, TAKE_ACTION, "Normal", api_core)
