@@ -1,4 +1,4 @@
-// auther: github.com/jnpacker
+// author: github.com/jnpacker
 package main
 
 import (
