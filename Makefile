@@ -1,6 +1,6 @@
 NAMESPACE := open-cluster-management
 
-all: checks
+all:
 	@echo "Development commands with Python:"
 	@echo "  make build-py      # Build Python image ONLY"
 	@echo "  make push-py       # Build and push the Pyhton image used by manual and cronjobs"
@@ -20,7 +20,7 @@ all: checks
 	@echo "Manual launch commands with Go:"
 	@echo "  make running-go    # Manually launch Running"
 	@echo "  make hibernate-go  # Manually launch Hibernating"
-	@echo "  make setup-gp      # Deploys the Go cronjobs"
+	@echo "  make setup-go      # Deploys the Go cronjobs"
 	@echo ""
 	@echo "Clean up:"
 	@echo "  make clean-py"
