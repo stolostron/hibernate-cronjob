@@ -101,12 +101,13 @@ func main() {
 	if TakeAction == "" || (TakeAction != "Hibernating" && TakeAction != "Running") {
 		panic("Environment variable TAKE_ACTION missing: " + TakeAction)
 	}
-	kubeconfig = flag.String("kubeconfig", "/home/jpacker/.kube/config", "")
+	homePath := os.Getenv("HOME") // Used to look for .kube/config
+	kubeconfig = flag.String("kubeconfig", homePath+"/.kube/config", "")
 	flag.Parse()
 
 	var config *rest.Config
 	var err error
-	if _, err := os.Stat("/home/jpacker/.kube/config"); !os.IsNotExist(err) {
+	if _, err := os.Stat(homePath + "/.kube/config"); !os.IsNotExist(err) {
 		fmt.Println("Connecting with local kubeconfig")
 		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	} else {
