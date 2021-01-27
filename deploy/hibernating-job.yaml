@@ -9,7 +9,7 @@ spec:
       serviceAccountName: hibernator
       containers:
       - name: worker
-        image: quay.io/jpacker/hibernation-curator-go:latest
+        image: quay.io/jpacker/hibernation-curator:latest
         imagePullPolicy: Always
         command: ['./action']
         env:

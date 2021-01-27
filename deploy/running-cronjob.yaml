@@ -19,10 +19,9 @@ spec:
           containers:
           - name: worker
             image: quay.io/jpacker/hibernation-curator:latest
-            command: ['python','action.py']
+            imagePullPolicy: IfNotPresent
+            command: ['./action']
             env:
             - name: TAKE_ACTION
               value: Running
-            - name: PYTHONWARNINGS
-              value: "ignore:Unverified HTTPS request"  
           restartPolicy: OnFailure

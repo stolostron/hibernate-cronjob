@@ -9,9 +9,9 @@ This repository has the source code as well as the deployment for two Kubernetes
 1. Log into your ACM Hub on OpenShift
 2. Run the command:
 ```
-make setup-go
+make setup
 ```
-4. Monitor the CornJobs
+4. Monitor the CronJobs
 ```
 oc get cronjobs
 ```
@@ -25,45 +25,37 @@ deploy/running-cronjob.yaml
 It uses the standard CronJob format and the check is done against a UTC clock.  For EDT, that means +4hrs.
 
 ## Skipping Clusters
-The job will only target clusters deployed by Hive. It looks for the ClusterDeployment objects.  If you put a label on either of these objects `hibernate: skip` they will be ignored by both CronJobs.
+The job will only target clusters deployed by Hive. It looks for the ClusterDeployment objects.  If you put a label on these objects `hibernate: skip` they will be ignored by both CronJobs.
 
 ## Runonce job
 ### To bring clusters back to "Ready"
 ```
-make running-go
+make running
 
 ## OR
 
-oc create -f deploy-go/hibernation-job.yaml
+oc create -f deploy/hibernation-job.yaml
 ```
 ### To hibernate clusters
 ```
-make hibernate-go
+make hibernate
 
 ## OR
 
-oc create -f deploy-go/running-job.yaml
+oc create -f deploy/running-job.yaml
 ```
 
 ## Manual updates
 Edit the ClusterDeployment resource for the cluster you want to change the state for.  Find the `spec.powerState` key and change the value to either: `Hibernating` or `Running`
 
 ## Building yourself
-You'll need docker and a connection to a registry that your OpenShift can reach.  Modify the Makefile and replace the value of `REPO_URL` with your own registry URL. Next modify the two CronJobs to use your new image:
+You'll need docker and a connection to a registry that your OpenShift can reach.  Export the environment variable `REPO_URL` with your own registry URL. Next modify the two CronJobs to use your new image:
 ```
-deploy-go/hibernating-cronjob.yaml
-deploy-go/running-cronjob.yaml
-```
-
-## Running local (Python)
-Setup the following environment variables, then run `python hibernate-cronjob/action.py`
-```bash
-export TARGET_ACTION=hibernating  # Or "running"
-export CM_TOKEN=                  # Your OpenShift API token
-export CM_API_URL                 # API URL for your cluster https://my.cluster.hostname.com:6443
+deploy/hibernating-cronjob.yaml
+deploy/running-cronjob.yaml
 ```
 
-## Running local (Python)
+## Running local
 Setup the following environment variables, then run `go run ./pkg`
 ```bash
 export REPO_URL=             # The repository you will upload your image too
