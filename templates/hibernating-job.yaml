@@ -1,0 +1,44 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: hibernator
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: hibernating-job-${RANDOM_ID}
+    spec:
+      template:
+        spec:
+          serviceAccountName: hibernator
+          containers:
+          - name: worker
+            image: ${CURATOR_IMAGE}
+            imagePullPolicy: Always
+            command: ['./action']
+            env:
+            - name: TAKE_ACTION
+              value: Hibernating
+            - name: OPT_IN
+              value: ${OPT_IN}
+          restartPolicy: OnFailure
+parameters:
+  - name: OPT_IN
+    description: When set to "true", only ClusterDeployments with label hibernate=true are hibernated/resumed.
+    value: "false" 
+    required: true
+  - name: CURATOR_IMAGE
+    description: Hibernation curator image
+    value: quay.io/jpacker/hibernation-curator:latest
+    required: true
+  - name: RANDOM_ID
+    generate: expression
+    from: "[a-z0-9]{5}"
+  - name: HIBERNATION_SCHEDULE 
+    description: Not used; allows sharing of options.env file
+  - name: RUNNING_SCHEDULE 
+    description: Not used; allows sharing of options.env file
+  - name: HIBERNATION_DISABLED
+    description: Not used; allows sharing of options.env file
+  - name: RUNNING_DISABLED
+    description: Not used; allows sharing of options.env file

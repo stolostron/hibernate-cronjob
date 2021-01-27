@@ -1,6 +1,0 @@
-resources:
-- role.yaml
-- rolebinding.yaml
-- sa.yaml
-- hibernating-cronjob.yaml
-- running-cronjob.yaml

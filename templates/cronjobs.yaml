@@ -1,0 +1,80 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: hibernator
+objects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: hibernator
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: hibernation-cronjob
+    spec:
+      schedule: ${HIBERNATING_SCHEDULE}
+      suspend: ${{HIBERNATION_DISABLED}}
+      jobTemplate:
+        spec:
+          template:
+            spec: 
+              serviceAccountName: hibernator
+              containers:
+              - name: worker
+                image: ${CURATOR_IMAGE}
+                imagePullPolicy: IfNotPresent
+                command: ['./action']
+                env:
+                - name: TAKE_ACTION
+                  value: Hibernating
+                - name: OPT_IN
+                  value: ${OPT_IN}
+              restartPolicy: OnFailure
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: running-cronjob
+    spec:
+      schedule: ${RUNNING_SCHEDULE}
+      suspend: ${{RUNNING_DISABLED}}
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              serviceAccountName: hibernator
+              containers:
+              - name: worker
+                image: ${CURATOR_IMAGE}
+                imagePullPolicy: IfNotPresent
+                command: ['./action']
+                env:
+                - name: TAKE_ACTION
+                  value: Running
+                - name: OPT_IN
+                  value: ${OPT_IN}
+              restartPolicy: OnFailure
+parameters:
+  - name: HIBERNATION_SCHEDULE 
+    description: Hibernation schedule in UTC (e.g. "0 23 * * 0-6" is everyday at 6pm EST)
+    value: 0 23 * * 0-6
+    required: true 
+  - name: RUNNING_SCHEDULE 
+    description: Resume schedule in UTC (e.g. "0 13 * * 1-5" is weekdays at 8am EST)
+    value: 0 13 * * 1-5
+    required: true
+  - name: HIBERNATION_DISABLED
+    description: Disable hibernation CronJob
+    value: "false"
+    required: true
+  - name: RUNNING_DISABLED
+    description: Disable resume CronJob
+    value: "false"
+    required: true
+  - name: OPT_IN
+    description: When set to "true", only ClusterDeployments with label hibernate=true are hibernated/resumed.
+    value: "false" 
+    required: true
+  - name: CURATOR_IMAGE
+    description: Hibernation curator image
+    value: quay.io/jpacker/hibernation-curator:latest
+    required: true

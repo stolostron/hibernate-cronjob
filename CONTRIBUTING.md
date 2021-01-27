@@ -48,7 +48,7 @@ After your PR is ready to commit, please run following commands to check your co
 ### Testing your change
 Make sure your `kubectl` context is set to your target cluster.
 ```bash
-export TARGET_ACTION=hibernating  # Or "running"
+export TARGET_ACTION=Hibernating  # Or "Running"
 make compile
 ./action
 ```
