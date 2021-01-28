@@ -1,96 +1,69 @@
-NAMESPACE := open-cluster-management
-
 all:
-	@echo "Development commands with Python:"
-	@echo "  make build-py      # Build Python image ONLY"
-	@echo "  make push-py       # Build and push the Pyhton image used by manual and cronjobs"
-	@echo "  make tag-py-latest # Pushes the latest tag for the Python based image"
+	@echo "Manual launch commands:"
+	@echo "  make params     # Display configuration options"
+	@echo "  make running    # Manually launch Running"
+	@echo "  make hibernate  # Manually launch Hibernating"
+	@echo "  make cronjobs   # Deploys the CronJobs"
+	@echo "  make roles      # Deploys the ClusterRole and ClusterRoleBinding"
 	@echo ""
-	@echo "Manual launch commands with Python:"
-	@echo "  make running-py    # Manually launch Running"
-	@echo "  make hibernate-py  # Manually launch Hibernating"
-	@echo "  make setup-py      # Deploys the Python cronjobs"
-	@echo ""
-	@echo "Development commands with Go"
-	@echo "  make compile-go    # Compile Go code ONLY"
-	@echo "  make build-go      # Build Go image ONLY"
-	@echo "  make push-go       # Build and push the Go image used by manual and cronjobs"
-	@echo "  make tag-go-latest # Pushes the latest tag for the Go based image"
-	@echo ""
-	@echo "Manual launch commands with Go:"
-	@echo "  make running-go    # Manually launch Running"
-	@echo "  make hibernate-go  # Manually launch Hibernating"
-	@echo "  make setup-go      # Deploys the Go cronjobs"
+	@echo "Development commands"
+	@echo "  make compile    # Compile code"
+	@echo "  make build      # Build image"
+	@echo "  make push       # Build and push the image used by manual and cronjobs"
+	@echo "  make tag-latest # Pushes the latest tag for the image"
 	@echo ""
 	@echo "Clean up:"
-	@echo "  make clean-py"
-	@echo "  make clean-go"
+	@echo "  make clean          # Deletes image from registry"
+	@echo "  make clean-cronjobs # Deletes the CronJobs"
+	@echo "  make clean-roles    # Deletes the ClusterRole and ClusterRoleBinding"
 
 checks:
 ifeq (${REPO_URL},)
-	err: ; "No REPO_URL environment variable"
+	$(error "No REPO_URL environment variable")
 endif
 
 ifeq (${VERSION},)
-	err: ; "Specify a VERSION environment variables"
+	$(error "No VERSION environment variable")
 endif
 
-setup:
-	@echo "You must choose setup-py or setup-go"
+options.env:
+	touch options.env
 
-build-py: checks
-	cp Dockerfile_PYTHON Dockerfile
-	docker build . -t ${REPO_URL}/hibernation-curator:${VERSION}
-	rm Dockerfile
+params:
+	oc process -f templates/cronjobs.yaml --parameters
 
-push-py: checks build-py
-	docker push ${REPO_URL}/hibernation-curator:${VERSION}
-
-tag-py-latest: push-py
-	docker tag ${REPO_URL}/hibernation-curator:${VERSION} ${REPO_URL}/hibernation-curator:latest
-	docker push ${REPO_URL}/hibernation-curator:latest
-
-clean-py:
-	oc delete -k deploy-py
+clean: checks
 	docker image rm ${REPO_URL}/hibernation-curator:${VERSION}
 
-clean-go:
-	oc delete -k deploy-py
-	docker image rm ${REPO_URL}/hibernation-curator-go:${VERSION}
+running: options.env
+	oc process -f templates/running-job.yaml --param-file options.env  | oc apply -f -
 
-running-py:
-	oc -n ${NAMESPACE} create -f deploy-py/running-job.yaml
+hibernating: options.env
+	oc process -f templates/hibernating-job.yaml --param-file options.env  | oc apply -f -
 
-hibernate-py:
-	oc -n ${NAMESPACE} create -f deploy-py/hibernating-job.yaml
+cronjobs: options.env
+	oc process -f templates/cronjobs.yaml --param-file options.env  | oc apply -f -
 
-setup-py:
-	oc -n ${NAMESPACE} apply -k deploy-py/
+clean-cronjobs: options.env
+	oc process -f templates/cronjobs.yaml --param-file options.env  | oc delete -f -
 
-# Go related routines
+roles: options.env
+	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q` | oc apply -f -
 
-running-go:
-	oc -n ${NAMESPACE} create -f deploy-go/running-job.yaml
+clean-roles: options.env
+	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q` | oc delete -f -
 
-hibernate-go:
-	oc -n ${NAMESPACE} create -f deploy-go/hibernating-job.yaml
-
-setup-go:
-	oc -n ${NAMESPACE} apply -k deploy-go/
-
-compile-go:
+compile:
 	go mod tidy
 	go mod vendor
 	go build -o action ./pkg
 
-build-go: checks compile-go
-	cp Dockerfile_GO Dockerfile
-	docker build . -t ${REPO_URL}/hibernation-curator-go:${VERSION}
-	rm Dockerfile
+build: checks compile
+	docker build . -t ${REPO_URL}/hibernation-curator:${VERSION}
 
-push-go: checks build-go
-	docker push ${REPO_URL}/hibernation-curator-go:${VERSION}
+push: checks build
+	docker push ${REPO_URL}/hibernation-curator:${VERSION}
 
-tag-go-latest: push-go
-	docker tag ${REPO_URL}/hibernation-curator-go:${VERSION} ${REPO_URL}/hibernation-curator-go:latest
-	docker push ${REPO_URL}/hibernation-curator-go:latest
+tag-latest: push
+	docker tag ${REPO_URL}/hibernation-curator:${VERSION} ${REPO_URL}/hibernation-curator:latest
+	docker push ${REPO_URL}/hibernation-curator:latest

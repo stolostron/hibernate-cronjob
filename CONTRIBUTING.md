@@ -46,20 +46,22 @@ Repo maintainers can assign you an issue or pull request by leaving a
 After your PR is ready to commit, please run following commands to check your code.
 
 ### Testing your change
-Export the following environment variables:
+Make sure your `kubectl` context is set to your target cluster.
 ```bash
-export TARGET_ACTION=hibernating  # Or "running"
-export CM_TOKEN=                  # Your OpenShift API token
-export CM_API_URL=                # API URL for your cluster https://my.cluster.hostname.com:6443
-python3 src/main.py
+export TARGET_ACTION=Hibernating  # Or "Running"
+make compile
+./action
 ```
-This will run the code locally, find the available Cloud Provider secrets and check the quotas for the provider.
+This will run the code locally, hibernating or running all ClusterDeployments as specified. Any ClusterDeployments with label `hibernate: skip` will be skipped.
 
 ## Build images
 Make sure your code build passed.
 ```bash
 export REPO_URL=<REPO_URL>      # quay.io/my-org
+export VERSION=<VERSION>
 make build
+make push
+make tag-latest
 ```
 
 Now, you can follow the [getting started guide](./README.md#getting-started) to work with the open-cluster-management hibernate-cronjob repository.
