@@ -51,7 +51,7 @@ RUNNING_SCHEDULE=0 13 * * 1-5"
 ### Skipping Clusters
 The job will only target clusters deployed by Hive. It looks for the ClusterDeployment objects.  If you put a label on these objects `hibernate: skip` they will be ignored by both CronJobs.
 
-For an opt-in model, instead specify `OPT_IN=true` in the `options.env` file. In this case, only ClusterDeployments with `hibernate: true` will be acted upon.
+For an opt-in model, instead specify `OPT_IN=true` in the `options.env` file. In this case, only ClusterDeployments with the label `hibernate: 'true'` will be acted upon.
 ## Runonce job
 
 You can hibernate or resume all applicable clusters manually. These commands use the `options.env` file, so the value of the `OPT_IN` parameter is respected.
