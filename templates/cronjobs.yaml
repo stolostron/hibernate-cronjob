@@ -12,7 +12,7 @@ objects:
     metadata:
       name: hibernation-cronjob
     spec:
-      schedule: ${HIBERNATING_SCHEDULE}
+      schedule: ${HIBERNATION_SCHEDULE}
       suspend: ${{HIBERNATION_DISABLED}}
       jobTemplate:
         spec:

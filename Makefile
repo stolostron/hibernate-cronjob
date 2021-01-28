@@ -36,22 +36,22 @@ clean: checks
 	docker image rm ${REPO_URL}/hibernation-curator:${VERSION}
 
 running: options.env
-	oc process -f templates/running-job.yaml --param-file options.env
+	oc process -f templates/running-job.yaml --param-file options.env  | oc apply -f -
 
 hibernating: options.env
-	oc process -f templates/hibernating-job.yaml --param-file options.env
+	oc process -f templates/hibernating-job.yaml --param-file options.env  | oc apply -f -
 
 cronjobs: options.env
-	oc process -f templates/cronjobs.yaml --param-file options.env
+	oc process -f templates/cronjobs.yaml --param-file options.env  | oc apply -f -
 
 clean-cronjobs: options.env
-	oc process -f templates/cronjobs.yaml --param-file options.env
+	oc process -f templates/cronjobs.yaml --param-file options.env  | oc delete -f -
 
 roles: options.env
-	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q`
+	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q` | oc apply -f -
 
 clean-roles: options.env
-	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q`
+	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q` | oc delete -f -
 
 compile:
 	go mod tidy
