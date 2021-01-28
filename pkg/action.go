@@ -30,7 +30,7 @@ type patchStringValue struct {
 // Simple error function
 func checkError(err error) {
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err.Error())
 	}
 }
 
@@ -98,6 +98,7 @@ func main() {
 
 	// Determine what action to take Hibernating or Running
 	var TakeAction = os.Getenv("TAKE_ACTION")
+	var OptIn = os.Getenv("OPT_IN")
 	if TakeAction == "" || (TakeAction != "Hibernating" && TakeAction != "Running") {
 		panic("Environment variable TAKE_ACTION missing: " + TakeAction)
 	}
@@ -127,7 +128,7 @@ func main() {
 	// Grab all ClusterDeployments to change the state
 	cds, err := hiveset.HiveV1().ClusterDeployments("").List(context.TODO(), v1.ListOptions{})
 	for _, clusterDeployment := range cds.Items {
-		if clusterDeployment.Labels["hibernate"] != "skip" {
+		if (OptIn == "true" && clusterDeployment.Labels["hibernate"] == "true") || (OptIn != "true" && clusterDeployment.Labels["hibernate"] != "skip") {
 			if string(clusterDeployment.Spec.PowerState) != TakeAction {
 
 				fmt.Print(TakeAction + ": " + clusterDeployment.Name)
