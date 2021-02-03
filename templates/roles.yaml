@@ -18,6 +18,7 @@ objects:
     kind: ClusterRoleBinding
     metadata:
         name: hibernation-curator
+        namespace: ${NAMESPACE}
     subjects:
     - kind: ServiceAccount
       name: hibernator

@@ -53,10 +53,10 @@ clean-cronjobs: options.env
 	oc process -f templates/cronjobs.yaml --param-file options.env  | oc delete -f -
 
 roles: options.env
-	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q` | oc apply -f -
+	oc process -f templates/roles.yaml --param-file options.env | oc apply -f -
 
 clean-roles: options.env
-	oc process -f templates/roles.yaml -p NAMESPACE=`oc project -q` | oc delete -f -
+	oc process -f templates/roles.yaml --param-file options.env | oc delete -f -
 
 compile:
 	go mod tidy
