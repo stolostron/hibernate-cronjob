@@ -7,6 +7,7 @@ objects:
     kind: Job
     metadata:
       name: hibernating-job-${RANDOM_ID}
+      namespace: ${NAMESPACE}
     spec:
       template:
         spec:
@@ -42,3 +43,6 @@ parameters:
     description: Not used; allows sharing of options.env file
   - name: RUNNING_DISABLED
     description: Not used; allows sharing of options.env file
+  - name: NAMESPACE 
+    description: The namespace where the hibernate CronJobs were installed
+    required: true

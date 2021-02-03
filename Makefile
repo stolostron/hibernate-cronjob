@@ -1,6 +1,7 @@
 all:
 	@echo "Manual launch commands:"
 	@echo "  make params     # Display configuration options"
+	@echo "  make optoins    # Display the override options.env"
 	@echo "  make running    # Manually launch Running"
 	@echo "  make hibernate  # Manually launch Hibernating"
 	@echo "  make cronjobs   # Deploys the CronJobs"
@@ -29,6 +30,10 @@ endif
 options.env:
 	touch options.env
 
+options:
+	@cat ./options.env
+	@echo ""
+
 params:
 	oc process -f templates/cronjobs.yaml --parameters
 
@@ -38,7 +43,7 @@ clean: checks
 running: options.env
 	oc process -f templates/running-job.yaml --param-file options.env  | oc apply -f -
 
-hibernating: options.env
+hibernate: options.env
 	oc process -f templates/hibernating-job.yaml --param-file options.env  | oc apply -f -
 
 cronjobs: options.env

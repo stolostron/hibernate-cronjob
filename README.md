@@ -4,6 +4,11 @@ This repository has the source code as well as the deployment for two Kubernetes
 ## Requirements
 - Red Hat Advanced Cluster Management for Kubernetes 2.1
 - OpenShift 4.5 and 4.6 clusters provisioned by ACM
+- Add the `NAMEPSPACE` parameter, pointing to where you want to run the hibernation jobs, in the `./options.env` file
+```bash
+# ./options.env
+NAMESPACE: open-cluster-management  #This can be any namespace where you want to install
+```
 
 ## Deploy
 1. Log into your ACM Hub on OpenShift and make sure `oc project -q` displays the name of the namespace where you want to install.
