@@ -7,6 +7,7 @@ objects:
     kind: ServiceAccount
     metadata:
       name: hibernator
+      namespace: ${NAMESPACE}
   - apiVersion: batch/v1beta1
     kind: CronJob
     metadata:
@@ -34,6 +35,7 @@ objects:
     kind: CronJob
     metadata:
       name: running-cronjob
+      namespace: ${NAMESPACE}
     spec:
       schedule: ${RUNNING_SCHEDULE}
       suspend: ${{RUNNING_DISABLED}}
@@ -77,4 +79,7 @@ parameters:
   - name: CURATOR_IMAGE
     description: Hibernation curator image
     value: quay.io/jpacker/hibernation-curator:latest
+    required: true
+  - name: NAMESPACE 
+    description: The namespace where the hibernate CronJobs were installed
     required: true

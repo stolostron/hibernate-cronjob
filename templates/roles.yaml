@@ -18,6 +18,7 @@ objects:
     kind: ClusterRoleBinding
     metadata:
         name: hibernation-curator
+        namespace: ${NAMESPACE}
     subjects:
     - kind: ServiceAccount
       name: hibernator
@@ -26,6 +27,11 @@ objects:
       kind: ClusterRole
       name: hibernation-curator
       apiGroup: rbac.authorization.k8s.io
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: hibernator
+      namespace: ${NAMESPACE}
 parameters:
   - name: NAMESPACE 
     description: The namespace where the hibernate CronJobs were installed
