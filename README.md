@@ -11,7 +11,7 @@ NAMESPACE: open-cluster-management  #This can be any namespace where you want to
 ```
 
 ## Deploy
-1. Log into your ACM Hub on OpenShift and make sure `oc project -q` displays the name of the namespace where you want to install.
+1. Log into your ACM Hub on OpenShift
 2. Run the command:
    ```
    make cronjobs
