@@ -35,14 +35,6 @@ parameters:
   - name: RANDOM_ID
     generate: expression
     from: "[a-z0-9]{5}"
-  - name: HIBERNATION_SCHEDULE 
-    description: Not used; allows sharing of options.env file
-  - name: RUNNING_SCHEDULE 
-    description: Not used; allows sharing of options.env file
-  - name: HIBERNATION_DISABLED
-    description: Not used; allows sharing of options.env file
-  - name: RUNNING_DISABLED
-    description: Not used; allows sharing of options.env file
   - name: NAMESPACE 
     description: The namespace where the hibernate CronJobs were installed
     required: true
