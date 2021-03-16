@@ -9,6 +9,7 @@ objects:
       name: hibernating-job-${RANDOM_ID}
       namespace: ${NAMESPACE}
     spec:
+      ttlSecondsAfterFinished: 600
       template:
         spec:
           serviceAccountName: hibernator
