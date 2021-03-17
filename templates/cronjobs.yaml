@@ -12,6 +12,7 @@ objects:
     kind: CronJob
     metadata:
       name: hibernation-cronjob
+      namespace: ${NAMESPACE}
     spec:
       schedule: ${HIBERNATION_SCHEDULE}
       suspend: ${{HIBERNATION_DISABLED}}
