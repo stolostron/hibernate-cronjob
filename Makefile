@@ -63,8 +63,8 @@ compile:
 	go mod vendor
 	go build -o action ./pkg
 
-build: checks compile
-	docker build . -t ${REPO_URL}/hibernation-curator:${VERSION}
+build: checks
+	docker build -f Dockerfile.prow . -t ${REPO_URL}/hibernation-curator:${VERSION}
 
 push: checks build
 	docker push ${REPO_URL}/hibernation-curator:${VERSION}

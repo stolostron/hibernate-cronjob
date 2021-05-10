@@ -1,16 +1,22 @@
 # Hibernate your Hive provisioned clusters
 This repository has the source code as well as the deployment for two Kubernetes CronJobs that will Hibernate and Resume your OpenShift clusters.
 
+## How this repository can be used
+There are three supported configurations you can use:
+1) Opt IN: A cluster will only be affected by the cronjob if it has the label `hibernate: true`
+2) Opt OUT: A cluster will ALWAYS be affected by the cronjob, unless it has the label `hibernate: false`
+3) Cluster Scoped: The cluster in the namespace where the cronjob is created is the only one affected by the ACTION value you choose (`Hibernating` or `Running`) 
+
 ## Requirements
-- Red Hat Advanced Cluster Management for Kubernetes 2.1
-- OpenShift 4.5 and 4.6 clusters provisioned by ACM
-- Add the `NAMEPSPACE` parameter, pointing to where you want to run the hibernation jobs, in the `./options.env` file
+- Red Hat Advanced Cluster Management for Kubernetes v2.1+
+- OpenShift 4.5+ clusters provisioned by ACM
+- Add the `NAMEPSPACE` parameter, pointing to where you want to run the hibernation jobs, in the `./options.env` file (Opt IN/OUT)
 ```bash
 # ./options.env
 NAMESPACE: open-cluster-management  #This can be any namespace where you want to install
 ```
 
-## Deploy
+## Deploy Opt IN or Opt OUT scenarios
 1. Log into your ACM Hub on OpenShift
 2. Run the command:
    ```
@@ -26,7 +32,17 @@ NAMESPACE: open-cluster-management  #This can be any namespace where you want to
    oc get cronjobs
    ```
 
-## Customizations
+## Deploy cluster scoped scenario
+1. Log into your ACM Hub on OpenShift
+2. Switch to the namespace(project) of the cluster you want to apply the cronjob to
+2. Run the command to create cronjob
+   ```bash
+   # ACTION=Hibernating   or  ACTION=Running
+   # SCHEDULE=<cronbtab_format>
+
+   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=Hibernating SCHEDULE="0 13 * * 1-5" --ignore-unknown-parameters=true  | oc apply -f -
+   ```
+## Customizations for Opt IN & OUT
 
 For a full list of options, run:
 ```

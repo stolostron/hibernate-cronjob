@@ -34,7 +34,7 @@ func checkError(err error) {
 	}
 }
 
-func powerStateChange(clientSet *hiveclient.Clientset, clusterDeployment *hivev1.ClusterDeployment, powerState string) string {
+func powerStatePatch(clientSet *hiveclient.Clientset, clusterDeployment *hivev1.ClusterDeployment, powerState string) string {
 	patch := []patchStringValue{{
 		Op:    "replace",
 		Path:  "/spec/powerState",
@@ -45,6 +45,17 @@ func powerStateChange(clientSet *hiveclient.Clientset, clusterDeployment *hivev1
 		HiveV1().
 		ClusterDeployments(clusterDeployment.Namespace).
 		Patch(context.TODO(), clusterDeployment.Name, types.JSONPatchType, patchInBytes, v1.PatchOptions{})
+	checkError(err)
+	return string(changedCD.Spec.PowerState)
+}
+
+func powerStateUpdate(clientSet *hiveclient.Clientset, clusterDeployment *hivev1.ClusterDeployment, powerState string) string {
+	clusterDeployment.Spec.PowerState = hivev1.ClusterPowerState(powerState)
+	changedCD, err := clientSet.
+		HiveV1().
+		ClusterDeployments(clusterDeployment.Namespace).
+		Update(context.TODO(), clusterDeployment, v1.UpdateOptions{})
+
 	checkError(err)
 	return string(changedCD.Spec.PowerState)
 }
@@ -125,31 +136,58 @@ func main() {
 	kubeset, err := kubernetes.NewForConfig(config)
 	checkError(err)
 
-	// Grab all ClusterDeployments to change the state
-	cds, err := hiveset.HiveV1().ClusterDeployments("").List(context.TODO(), v1.ListOptions{})
-	for _, clusterDeployment := range cds.Items {
-		if (OptIn == "true" && clusterDeployment.Labels["hibernate"] == "true") || (OptIn != "true" && clusterDeployment.Labels["hibernate"] != "skip") {
-			if string(clusterDeployment.Spec.PowerState) != TakeAction {
+	podNamespace := os.Getenv("POD_NAMESPACE")
 
-				fmt.Print(TakeAction + ": " + clusterDeployment.Name)
-				newPowerState := powerStateChange(hiveset, &clusterDeployment, TakeAction)
+	// When running inside the cluster namespace as cluster-installer, we only have access to Get & Update for ClusterDeployment
+	if podNamespace != "" {
+		clusterDeployment, err := hiveset.HiveV1().ClusterDeployments(podNamespace).Get(context.TODO(), podNamespace, v1.GetOptions{})
+		checkError(err)
 
-				// Check the new state and report a response
-				if newPowerState == TakeAction {
-					fmt.Println("  ✓")
-					fireEvent(kubeset, &clusterDeployment, "hibernating", "The cluster "+clusterDeployment.Name+" has powerState "+TakeAction, TakeAction, "Normal")
-				} else {
-					fmt.Println("  X")
-					//"failedhibernating", "The cluster " + clusterName + " did not set powerState to Hibernating", "failedHibernating", "Warning"
-					fireEvent(kubeset, &clusterDeployment, "hibernating", "The cluster "+clusterDeployment.Name+" did not set powerState to "+TakeAction, "failedHibernating", "Warning")
-				}
+		takeAction(hiveset, kubeset, *clusterDeployment, TakeAction, true)
+		fmt.Println("  \\-> Event supressed")
+
+	} else {
+		// Grab all ClusterDeployments to change the state
+		cds, err := hiveset.HiveV1().ClusterDeployments(podNamespace).List(context.TODO(), v1.ListOptions{})
+		checkError(err)
+
+		for _, clusterDeployment := range cds.Items {
+
+			if (OptIn == "true" && clusterDeployment.Labels["hibernate"] == "true") || (OptIn != "true" && clusterDeployment.Labels["hibernate"] != "skip") {
+				takeAction(hiveset, kubeset, clusterDeployment, TakeAction, false)
 			} else {
 				fmt.Println("Skip    : " + clusterDeployment.Name + "  (currently " + string(clusterDeployment.Spec.PowerState) + ")")
-				fireEvent(kubeset, &clusterDeployment, "hibernating", "Skipping cluster "+clusterDeployment.Name+", requested powerState "+TakeAction+" equals current powerState "+string(clusterDeployment.Spec.PowerState), "skipHibernating", "Normal")
+				fireEvent(kubeset, &clusterDeployment, "hibernating", "Skipping cluster "+clusterDeployment.Name+", found labels.hibernate=skip. It will not be hibernating", "skipHibernating", "Normal")
+			}
+		}
+	}
+}
+
+func takeAction(hiveset *hiveclient.Clientset, kubeset *kubernetes.Clientset, clusterDeployment hivev1.ClusterDeployment, takeAction string, noEvents bool) {
+	if string(clusterDeployment.Spec.PowerState) != takeAction {
+
+		fmt.Print(takeAction + ": " + clusterDeployment.Name)
+		//newPowerState := powerStatePatch(hiveset, &clusterDeployment, TakeAction)
+		newPowerState := powerStateUpdate(hiveset, &clusterDeployment, takeAction)
+
+		// Check the new state and report a response
+		if newPowerState == takeAction {
+			fmt.Println("  ✓")
+
+			if !noEvents {
+				fireEvent(kubeset, &clusterDeployment, "hibernating", "The cluster "+clusterDeployment.Name+" has powerState "+takeAction, takeAction, "Normal")
 			}
 		} else {
-			fmt.Println("Skip    : " + clusterDeployment.Name + "  (currently " + string(clusterDeployment.Spec.PowerState) + ")")
-			fireEvent(kubeset, &clusterDeployment, "hibernating", "Skipping cluster "+clusterDeployment.Name+", found labels.hibernate=skip. It will not be hibernating", "skipHibernating", "Normal")
+			fmt.Println("  X")
+			//"failedhibernating", "The cluster " + clusterName + " did not set powerState to Hibernating", "failedHibernating", "Warning"
+			if !noEvents {
+				fireEvent(kubeset, &clusterDeployment, "hibernating", "The cluster "+clusterDeployment.Name+" did not set powerState to "+takeAction, "failedHibernating", "Warning")
+			}
+		}
+	} else {
+		fmt.Println("Skip    : " + clusterDeployment.Name + "  (currently " + string(clusterDeployment.Spec.PowerState) + ")")
+		if !noEvents {
+			fireEvent(kubeset, &clusterDeployment, "hibernating", "Skipping cluster "+clusterDeployment.Name+", requested powerState "+takeAction+" equals current powerState "+string(clusterDeployment.Spec.PowerState), "skipHibernating", "Normal")
 		}
 	}
 }

@@ -1,0 +1,59 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: hibernator
+objects:
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: ${DISPLAY_NAME}-${RANDOM_ID}
+      namespace: ${NAMESPACE}
+    spec:
+      schedule: ${SCHEDULE}
+      suspend: ${{DISABLED}}
+      jobTemplate:
+        spec:
+          template:
+            spec: 
+              serviceAccountName: cluster-installer
+              containers:
+              - name: worker
+                image: ${CURATOR_IMAGE}
+                #imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
+                command: ['./action']
+                env:
+                - name: TAKE_ACTION
+                  value: ${ACTION}
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              restartPolicy: OnFailure
+parameters:
+  - name: DISPLAY_NAME 
+    description: Whether you want to hibernate or resume (running) on the specified schedule
+    value: hibernate-run # hibernating / running
+    required: true 
+  - name: ACTION 
+    description: Whether you want to hibernate or resume (running) on the specified schedule
+    value: Hibernating # Hibernating / Running
+    required: true 
+  - name: SCHEDULE 
+    description: Hibernation or Resumption schedule in UTC (e.g. "0 23 * * 0-6" is everyday at 6pm EST)
+    value: 0 23 * * 0-6
+    required: true 
+  - name: DISABLED
+    description: Disable hibernation CronJob
+    value: "false"
+    required: true
+  - name: CURATOR_IMAGE
+    description: Hibernation curator image
+    value: quay.io/jpacker/hibernation-curator:0.2dev
+    required: true
+  - name: NAMESPACE 
+    description: The namespace where the hibernate CronJobs were installed
+    required: true
+  - name: RANDOM_ID
+    generate: expression
+    from: "[a-z0-9]{5}"
