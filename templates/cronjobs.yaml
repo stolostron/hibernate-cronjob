@@ -55,7 +55,7 @@ parameters:
     required: true
   - name: CURATOR_IMAGE
     description: Hibernation curator image
-    value: quay.io/jpacker/hibernation-curator:0.2dev
+    value: quay.io/jpacker/hibernation-curator:latest
     required: true
   - name: NAMESPACE 
     description: The namespace where the hibernate CronJobs were installed
