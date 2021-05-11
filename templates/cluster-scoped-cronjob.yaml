@@ -6,7 +6,7 @@ objects:
   - apiVersion: batch/v1beta1
     kind: CronJob
     metadata:
-      name: ${DISPLAY_NAME}-${RANDOM_ID}
+      name: ${ACTION}-cronjob-${RANDOM_ID}
       namespace: ${NAMESPACE}
     spec:
       schedule: ${SCHEDULE}
@@ -19,8 +19,7 @@ objects:
               containers:
               - name: worker
                 image: ${CURATOR_IMAGE}
-                #imagePullPolicy: IfNotPresent
-                imagePullPolicy: Always
+                imagePullPolicy: IfNotPresent
                 command: ['./action']
                 env:
                 - name: TAKE_ACTION
@@ -31,13 +30,9 @@ objects:
                       fieldPath: metadata.namespace
               restartPolicy: OnFailure
 parameters:
-  - name: DISPLAY_NAME 
-    description: Whether you want to hibernate or resume (running) on the specified schedule
-    value: hibernate-run # hibernating / running
-    required: true 
   - name: ACTION 
     description: Whether you want to hibernate or resume (running) on the specified schedule
-    value: Hibernating # Hibernating / Running
+    value: hibernating # hibernating / running
     required: true 
   - name: SCHEDULE 
     description: Hibernation or Resumption schedule in UTC (e.g. "0 23 * * 0-6" is everyday at 6pm EST)

@@ -5,7 +5,7 @@ This repository has the source code as well as the deployment for two Kubernetes
 There are three supported configurations you can use:
 1) Opt IN: A cluster will only be affected by the cronjob if it has the label `hibernate: true`
 2) Opt OUT: A cluster will ALWAYS be affected by the cronjob, unless it has the label `hibernate: false`
-3) Cluster Scoped: The cluster in the namespace where the cronjob is created is the only one affected by the ACTION value you choose (`Hibernating` or `Running`) 
+3) Cluster Scoped: The cluster in the namespace where the cronjob is created is the only one affected by the ACTION value you choose (`hibernating` or `running`) 
 
 ## Requirements
 - Red Hat Advanced Cluster Management for Kubernetes v2.1+
@@ -37,11 +37,17 @@ NAMESPACE: open-cluster-management  #This can be any namespace where you want to
 2. Switch to the namespace(project) of the cluster you want to apply the cronjob to
 2. Run the command to create cronjob
    ```bash
-   # ACTION=Hibernating   or  ACTION=Running
+   # ACTION=hibernating   or  ACTION=running
    # SCHEDULE=<cronbtab_format>
 
-   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=Hibernating SCHEDULE="0 13 * * 1-5" --ignore-unknown-parameters=true  | oc apply -f -
+   # Hibernating cronjob
+   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=hibernating SCHEDULE="0 23 * * 0-6" --ignore-unknown-parameters=true  | oc apply -f -
+
+   # Running cronjob
+   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=running SCHEDULE="0 12 * * 0-6" --ignore-unknown-parameters=true  | oc apply -f -
    ```
+   _Note: The cluster scoped cronjob requires the value `hibernating` or `running` to be lowercase. This is becuase the `ACTION` parameter is also used to generate the cronjob name.
+
 ## Customizations for Opt IN & OUT
 
 For a full list of options, run:

@@ -32,10 +32,34 @@ objects:
                 - name: OPT_IN
                   value: ${OPT_IN}
               restartPolicy: OnFailure
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: running-cronjob
+      namespace: ${NAMESPACE}
+    spec:
+      schedule: ${RUNNING_SCHEDULE}
+      suspend: ${{RUNNING_DISABLED}}
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              serviceAccountName: hibernator
+              containers:
+              - name: worker
+                image: ${CURATOR_IMAGE}
+                imagePullPolicy: IfNotPresent
+                command: ['./action']
+                env:
+                - name: TAKE_ACTION
+                  value: Running
+                - name: OPT_IN
+                  value: ${OPT_IN}
+              restartPolicy: OnFailure
 parameters:
   - name: HIBERNATION_SCHEDULE 
     description: Hibernation schedule in UTC (e.g. "0 23 * * 0-6" is everyday at 6pm EST)
-    value: 0 22 * * 0-6
+    value: 0 23 * * 0-6
     required: true 
   - name: RUNNING_SCHEDULE 
     description: Resume schedule in UTC (e.g. "0 13 * * 1-5" is weekdays at 8am EST)
