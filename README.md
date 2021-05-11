@@ -13,7 +13,7 @@ There are three supported configurations you can use:
 - Add the `NAMEPSPACE` parameter, pointing to where you want to run the hibernation jobs, in the `./options.env` file (Opt IN/OUT)
 ```bash
 # ./options.env
-NAMESPACE: open-cluster-management  #This can be any namespace where you want to install
+NAMESPACE: open-cluster-management  #This can be any namespace where you want to install for Opt IN or Opt OUT
 ```
 
 ## Deploy Opt IN or Opt OUT scenarios
@@ -38,13 +38,14 @@ NAMESPACE: open-cluster-management  #This can be any namespace where you want to
 2. Run the command to create cronjob
    ```bash
    # ACTION=hibernating   or  ACTION=running
-   # SCHEDULE=<cronbtab_format>
+   # SCHEDULE=<crontab_format>
+   # NAMESPACE=<my-cluster-name>  The cluster name you wish to apply the cronjob to
 
    # Hibernating cronjob
-   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=hibernating SCHEDULE="0 23 * * 0-6" --ignore-unknown-parameters=true  | oc apply -f -
+   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=hibernating SCHEDULE="0 23 * * 0-6" NAMESPACE= my-cluster-name --ignore-unknown-parameters=true  | oc apply -f -
 
    # Running cronjob
-   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=running SCHEDULE="0 12 * * 0-6" --ignore-unknown-parameters=true  | oc apply -f -
+   oc process -f templates/cluster-scoped-cronjob.yaml ACTION=running SCHEDULE="0 12 * * 0-6" NAMESPACE= my-cluster-name --ignore-unknown-parameters=true  | oc apply -f -
    ```
    _Note: The cluster scoped cronjob requires the value `hibernating` or `running` to be lowercase. This is becuase the `ACTION` parameter is also used to generate the cronjob name.
 
