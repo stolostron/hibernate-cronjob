@@ -38,7 +38,7 @@ params:
 	oc process -f templates/cronjobs.yaml --parameters
 
 clean: checks
-	docker image rm ${REPO_URL}/hibernation-curator:${VERSION}
+	podman image rm ${REPO_URL}/hibernation-curator:${VERSION}
 
 running: options.env
 	oc process -f templates/running-job.yaml --param-file options.env --ignore-unknown-parameters=true | oc apply -f -
@@ -64,11 +64,11 @@ compile:
 	go build -o action ./pkg
 
 build: checks
-	docker build -f Dockerfile.prow . -t ${REPO_URL}/hibernation-curator:${VERSION}
+	podman build -f Dockerfile.prow . -t ${REPO_URL}/hibernation-curator:${VERSION}
 
 push: checks build
-	docker push ${REPO_URL}/hibernation-curator:${VERSION}
+	podman push ${REPO_URL}/hibernation-curator:${VERSION}
 
 tag-latest: push
-	docker tag ${REPO_URL}/hibernation-curator:${VERSION} ${REPO_URL}/hibernation-curator:latest
-	docker push ${REPO_URL}/hibernation-curator:latest
+	podman tag ${REPO_URL}/hibernation-curator:${VERSION} ${REPO_URL}/hibernation-curator:latest
+	podman push ${REPO_URL}/hibernation-curator:latest
