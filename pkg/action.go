@@ -12,7 +12,7 @@ import (
 	hivev1 "github.com/openshift/hive/pkg/apis/hive/v1"
 	hiveclient "github.com/openshift/hive/pkg/client/clientset/versioned"
 	corev1 "k8s.io/api/core/v1"
-	eventv1beta1 "k8s.io/api/events/v1beta1"
+	eventv1 "k8s.io/api/events/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -66,15 +66,15 @@ func powerStateUpdate(clientSet *hiveclient.Clientset, clusterDeployment *hivev1
 // Used to create events for Cluster hibernation actions
 //objName, namespaceName, objKind, eventName, message, reason, eType, api_core
 func fireEvent(clientSet *kubernetes.Clientset, objRef *hivev1.ClusterDeployment, eventName string, message string, reason string, eType string) {
-	event, err := clientSet.EventsV1beta1().Events(objRef.Namespace).Get(context.TODO(), eventName, v1.GetOptions{})
+	event, err := clientSet.EventsV1().Events(objRef.Namespace).Get(context.TODO(), eventName, v1.GetOptions{})
 	if event != nil && event.Series == nil {
-		event.Series = new(eventv1beta1.EventSeries)
+		event.Series = new(eventv1.EventSeries)
 		event.Series.Count = 1
 		event.Series.LastObservedTime = v1.NowMicro()
 	}
 	if err != nil {
 		fmt.Println("  |-> Event not found")
-		event = new(eventv1beta1.Event)
+		event = new(eventv1.Event)
 		//event.TypeMeta.Kind = "Event"
 		//event.TypeMeta.APIVersion = "v1"
 		event.ObjectMeta.Name = eventName
@@ -97,11 +97,11 @@ func fireEvent(clientSet *kubernetes.Clientset, objRef *hivev1.ClusterDeployment
 		Name:      objRef.Name,
 	}
 	if err != nil {
-		_, err := clientSet.EventsV1beta1().Events(objRef.Namespace).Create(context.TODO(), event, v1.CreateOptions{})
+		_, err := clientSet.EventsV1().Events(objRef.Namespace).Create(context.TODO(), event, v1.CreateOptions{})
 		fmt.Println("  \\-> Create a new event " + eventName + " for cluster " + objRef.Namespace + "/" + objRef.Name)
 		checkError(err)
 	} else {
-		_, err := clientSet.EventsV1beta1().Events(objRef.Namespace).Update(context.TODO(), event, v1.UpdateOptions{})
+		_, err := clientSet.EventsV1().Events(objRef.Namespace).Update(context.TODO(), event, v1.UpdateOptions{})
 		fmt.Println("  \\-> Update existing event "+eventName+", event count", event.Series.Count)
 		checkError(err)
 	}

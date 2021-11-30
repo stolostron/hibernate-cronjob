@@ -8,7 +8,7 @@ objects:
     metadata:
       name: hibernator
       namespace: ${NAMESPACE}
-  - apiVersion: batch/v1beta1
+  - apiVersion: batch/v1
     kind: CronJob
     metadata:
       name: hibernation-cronjob
@@ -32,7 +32,7 @@ objects:
                 - name: OPT_IN
                   value: ${OPT_IN}
               restartPolicy: OnFailure
-  - apiVersion: batch/v1beta1
+  - apiVersion: batch/v1
     kind: CronJob
     metadata:
       name: running-cronjob
