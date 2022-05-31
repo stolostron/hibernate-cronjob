@@ -39,8 +39,10 @@ replace (
 )
 
 require (
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/openshift/hive v1.0.14
-	k8s.io/api v0.19.2
+	gopkg.in/yaml.v3 v3.0.0 // indirect
+	k8s.io/api v0.19.4
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v12.0.0+incompatible
 )
