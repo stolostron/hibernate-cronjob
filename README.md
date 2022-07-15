@@ -1,14 +1,15 @@
-# Hibernate your Hive provisioned clusters
-This repository has the source code as well as the deployment for two Kubernetes CronJobs that will Hibernate and Resume your OpenShift clusters.
+# Hibernate your Hive provisioned clusters and scale cluster pools
+This repository has the source code as well as the deployment for two Kubernetes CronJobs that will Hibernate and Resume your OpenShift clusters.  In addition, there is tooling to create CronJobs for scaling cluster pools.
 
 ## How this repository can be used
 There are three supported configurations you can use:
 1) Opt IN: A cluster will only be affected by the cronjob if it has the label `hibernate: true`
 2) Opt OUT: A cluster will ALWAYS be affected by the cronjob, unless it has the label `hibernate: false`
-3) Cluster Scoped: The cluster in the namespace where the cronjob is created is the only one affected by the ACTION value you choose (`hibernating` or `running`) 
+3) Cluster Scoped: The cluster in the namespace where the cronjob is created is the only one affected by the ACTION value you choose (`hibernating` or `running`)
 
 ## Requirements
 - Red Hat Advanced Cluster Management for Kubernetes v2.1+
+- OpenShift `oc` command line tool installed
 - OpenShift 4.5+ clusters provisioned by ACM
 - Add the `NAMEPSPACE` parameter, pointing to where you want to run the hibernation jobs, in the `./options.env` file (Opt IN/OUT)
 ```bash
@@ -80,7 +81,7 @@ RUNNING_SCHEDULE=0 13 * * 1-5"
 The job will only target clusters deployed by Hive. It looks for the ClusterDeployment objects.  If you put a label on these objects `hibernate: skip` they will be ignored by both CronJobs.
 
 For an opt-in model, instead specify `OPT_IN=true` in the `options.env` file. In this case, only ClusterDeployments with the label `hibernate: 'true'` will be acted upon.
-## Runonce job
+## Run once job
 
 You can hibernate or resume all applicable clusters manually. These commands use the `options.env` file, so the value of the `OPT_IN` parameter is respected.
 ### To bring clusters back to "Ready"
@@ -114,3 +115,56 @@ export VERSION=              # The image version you want to use
 
 ## Notes
 * Added to the open-cluster-management community [2020-11-25](https://github.com/open-cluster-management/community/issues/6)
+
+# Cluster pool scaling
+Use Kubernetes CronJobs to scale up or down cluster pools at specific times.  Reducing the size of a cluster pool during off-peak hours can help reduce cloud expense.
+
+## Customizations
+
+For a full list of options, run:
+```
+make clusterpool-params
+```
+
+For example, to scale up a cluster pool named `aws-4-10`, create a file `aws-4-10-scaleup.env` containing the following options. (NOTE: This file is not under version control.) For example, to change the pool size at 8am Mon - Fri EST:
+```
+CRONJOB_SCHEDULE: 0 12 * * 1-5
+SERVICE_ACCOUNT_NAME: hibernator
+CLUSTER_POOL_NAME: aws-4-10
+CLUSTER_POOL_SIZE: 4
+NAME: aws-4-10-scaleup
+NAMESPACE: my-namespace
+```
+
+For a complementary scale down of a cluster pool, create a file `aws-4-10-scaledown.env` containing the following options. (NOTE: This file is not under version control.) For example, to change the pool size at midnight Tue - Sat EST:
+```
+CRONJOB_SCHEDULE: 0 4 * * 2-6
+SERVICE_ACCOUNT_NAME: hibernator
+CLUSTER_POOL_NAME: aws-4-10
+CLUSTER_POOL_SIZE: 2
+NAME: aws-4-10-scaledown
+NAMESPACE: my-namespace
+```
+
+
+## Deploy the CronJob
+Run the following command to create the CronJob to sclae up the cluster pool:
+```
+oc process -f templates/scale-clusterpool-job.yaml --param-file ./aws-4-10-scaleup.env  --ignore-unknown-parameters=true | oc apply -f -
+```
+
+Run the following command to create the CronJob to sclae down the cluster pool:
+```
+oc process -f templates/scale-clusterpool-job.yaml --param-file ./aws-4-10-scaledown.env  --ignore-unknown-parameters=true | oc apply -f -
+```
+
+## View CronJobs
+1. Log into your ACM Hub on OpenShift
+2. Monitor the CronJobs
+   ```
+   oc get cronjobs -n <NAMESPACE>
+   ```
+
+
+## Manual updates
+Edit the ClusterPool resource for the cluster you want to change the size for.  Find the `spec.size` key and change the value to the size you want.

@@ -72,3 +72,9 @@ push: checks build
 tag-latest: push
 	docker tag ${REPO_URL}/hibernation-curator:${VERSION} ${REPO_URL}/hibernation-curator:latest
 	docker push ${REPO_URL}/hibernation-curator:latest
+
+# Cluster pool scaling options
+
+
+clusterpool-params:
+	oc process -f templates/scale-clusterpool-job.yaml --parameters
