@@ -1,7 +1,9 @@
 # Hibernate your Hive provisioned clusters and scale cluster pools
-This repository has the source code as well as the deployment for two Kubernetes CronJobs that will Hibernate and Resume your OpenShift clusters.  In addition, there is tooling to create CronJobs for scaling cluster pools.
+This repository has the source code as well as the deployment for two Kubernetes CronJobs that will Hibernate and Resume your OpenShift clusters.
 
-## How this repository can be used
+In addition, there is tooling to create CronJobs for scaling cluster pools.
+
+## How this repository can be used to hibernate Hive provisioned clusters
 There are three supported configurations you can use:
 1) Opt IN: A cluster will only be affected by the cronjob if it has the label `hibernate: true`
 2) Opt OUT: A cluster will ALWAYS be affected by the cronjob, unless it has the label `hibernate: false`
@@ -126,6 +128,8 @@ For a full list of options, run:
 make clusterpool-params
 ```
 
+NOTE: This feature uses the ServiceAccount called `hibernator` that was created previously in the section above.
+
 For example, to scale up a cluster pool named `aws-4-10`, create a file `aws-4-10-scaleup.env` containing the following options. (NOTE: This file is not under version control.) For example, to change the pool size at 8am Mon - Fri EST:
 ```
 CRONJOB_SCHEDULE: 0 12 * * 1-5
@@ -164,7 +168,6 @@ oc process -f templates/scale-clusterpool-job.yaml --param-file ./aws-4-10-scale
    ```
    oc get cronjobs -n <NAMESPACE>
    ```
-
 
 ## Manual updates
 Edit the ClusterPool resource for the cluster you want to change the size for.  Find the `spec.size` key and change the value to the size you want.
