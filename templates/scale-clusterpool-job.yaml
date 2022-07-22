@@ -1,0 +1,44 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: hibernator
+objects:
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: ${NAME}
+      namespace: ${NAMESPACE}
+    spec:
+      schedule: ${CRONJOB_SCHEDULE}
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              serviceAccountName: ${SERVICE_ACCOUNT_NAME}
+              containers:
+              - name: cron
+                image: bitnami/kubectl:latest
+                command:
+                - /bin/sh
+                - -c
+                - kubectl patch clusterpool ${CLUSTER_POOL_NAME} -n ${NAMESPACE} --type=merge -p '{"spec":{"size":${CLUSTER_POOL_SIZE}}}'
+              restartPolicy: OnFailure
+parameters:
+  - name: CRONJOB_SCHEDULE
+    description: CronJob schedule of when to run the job.  Time is in UTC.
+    required: true
+  - name: SERVICE_ACCOUNT_NAME
+    description: The name of the service account to use for the cluster pool
+    required: true
+  - name: CLUSTER_POOL_NAME
+    description: Name of the cluster pool
+    required: true
+  - name: CLUSTER_POOL_SIZE
+    description: Requested size for the cluster pool
+    required: true
+  - name: NAME
+    description: Name of the CronJob
+    required: true
+  - name: NAMESPACE
+    description: The namespace where the cluster pool CronJobs are installed
+    required: true
