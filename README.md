@@ -6,7 +6,7 @@ In addition, there is tooling to create CronJobs for scaling cluster pools.
 ## How this repository can be used to hibernate Hive provisioned clusters
 There are three supported configurations you can use:
 1) Opt IN: A cluster will only be affected by the cronjob if it has the label `hibernate: true`
-2) Opt OUT: A cluster will ALWAYS be affected by the cronjob, unless it has the label `hibernate: false`
+2) Opt OUT: A cluster will ALWAYS be affected by the cronjob, unless it has the label `hibernate: skip`
 3) Cluster Scoped: The cluster in the namespace where the cronjob is created is the only one affected by the ACTION value you choose (`hibernating` or `running`)
 
 ## Requirements
